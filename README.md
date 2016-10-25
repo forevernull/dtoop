@@ -1,16 +1,15 @@
 Dtoop
-===
 
 Dtoop Version 1.0 beta
 Data to Hadoop, yet another Sqoop.
 
 ![设计逻辑]("逻辑设计")
 
-PRE
+PREPARE
 ---
 
-- 安装MySQL客户端和Hadoop客户端，保证mysql命令和hdfs命令可用
-- 主机到接收数据的MySQL服务器之间需要免密码登陆
+- MySQL and HADOOP Client NEEDED!
+- [SSH Authorized](http://sshkeychain.sourceforge.net/mirrors/SSH-with-Keys-HOWTO/SSH-with-Keys-HOWTO-4.html)
 
 INSTALL
 ---
