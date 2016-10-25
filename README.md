@@ -28,12 +28,12 @@ USAGE
 ### export-import
 - MySQL -> FILE
 
-    + TRUNCAT/CREATE FILE
+    * TRUNCAT/CREATE FILE
 ```
 dtoop-import -u"root" -p"***" -h"172.17.0.54" -d"test" -q"select * from user" -o"/tmp/user"
 ```
 
-    + APPEND FILE
+    * APPEND FILE
 ```
 dtoop-import -u"root" -p"***" -h"172.17.0.54" -d"test" -q"select * from user" -o"/tmp/user" -t" "
 ```
