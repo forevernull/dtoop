@@ -1,0 +1,101 @@
+#!/bin/bash
+prgm=`readlink -f $0`
+bin=`dirname ${prgm}`
+bin=`cd ${bin} && pwd`
+
+usage(){
+    echo "Dtoop Version 1.0 beta";
+    echo "Data to Hadoop, yet another Sqoop.dtoop-import: transfer data from mysql to hdfs"
+    echo "Usage: dtoop-import [options...]"
+    echo " -u, --username   username of database"
+    echo " -p, --password   password of database"
+    echo " -h, --host       host of database"
+    echo " -d, --database   which database to use"
+    echo " -q, --query      query of SQL"
+    echo " -o, --ouput      the tmp-file of data from sql, if not given, you must use '-i'"
+    echo " -t, --output-type file mode, append(>>) or truncate(>) "
+    echo " -i, --input      the tmp-file when data is not from sql"
+    echo " --target-dir     data directory of hdfs, if it's not exist, it will be made, and its mode will be changed"
+    echo " --to-file        just get hdfs file to one local file"
+    echo " --help           this help text"
+    exit;
+}
+
+if [ x"$@" == x"" ];then
+    usage;
+fi
+
+ARGS=`getopt -o u:p:h:q:o:i:d:t: -l username:,password:,host:,database:,query:,output:,input:,target-dir:,output-type:,help -n '' -- "$@"`
+
+eval set -- "${ARGS}"
+
+while true; do
+    case "$1" in
+        --help)
+            shift
+            usage;
+            ;;
+        -u|--username)
+            shift 
+            username=$1
+            ;;
+        -p|--password)
+            shift
+            password=$1
+            ;;
+        -h|--host)
+            shift
+            host=$1
+            ;;
+        -d|--database)
+            shift
+            database=$1
+            ;;
+        -q|--query)
+            shift
+            query=$1
+            ;;
+        -o|--output)
+            shift
+            output=$1
+            ;;
+        -t|--output-type)
+            shift
+            outputtype=$1
+            ;;
+        -i|--input)
+            shift
+            input=$1
+            ;;
+        --target-dir)
+            shift
+            target_dir=$1
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+shift
+done;
+
+if [ -n "$output" ];then
+    if [ -n "$outputtype" ]; then
+        mysql -u"$username" -p"$password" -h"$host" $database -e"$query" -N >> $output 
+    else
+        mysql -u"$username" -p"$password" -h"$host" $database -e"$query" -N > $output 
+    fi
+fi
+
+if [ ! -n "$input" ];then
+   input=$output 
+fi
+
+if [ -n "$target_dir" ];then
+    hdfs dfs -test -e $target_dir
+    if [ $? -ne 0 ]; then
+        hdfs dfs -mkdir -p $target_dir 
+    fi
+    hdfs dfs -copyFromLocal -f $input $target_dir
+    hdfs dfs -chmod -R 777 $target_dir
+fi 
